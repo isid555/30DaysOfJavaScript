@@ -1,5 +1,7 @@
 const projectsArea = document.querySelector(".project-list-area");
+const searchBar = document.getElementById("search-bar");
 
+let allProjects = []
 function getImagePath(id) {
   return `public/assets/${id}.png`;
 }
@@ -65,6 +67,7 @@ function getProjectContent(project) {
 }
 
 function renderProjectList(projects) {
+  projectsArea.innerHTML = ""
   projects.forEach((project) => {
     const projectCard = document.createElement("div");
     projectCard.className = "project-card";
@@ -85,16 +88,36 @@ function renderProjectList(projects) {
     projectsArea.appendChild(projectCard);
   });
 }
+function filterProjects(query) {
+  const filteredProjects = allProjects.filter(project =>
+      project.name.toLowerCase().includes(query.toLowerCase()) ||
+      project.description.toLowerCase().includes(query.toLowerCase())
+  );
+  renderProjectList(filteredProjects);
+}
 
 function fetchProjects() {
+  
   fetch("./data.json")
     .then((res) => res.json())
     .then((projects) => {
+      allProjects = projects;
       renderProjectList(projects);
+      searchBar.addEventListener( "input", () => {
+        const query = searchBar.value;
+        if (query) {
+          filterProjects(query)
+        }
+        else {
+          renderProjectList(projects);
+        }
+      });
     })
     .catch((err) => {
       console.log("Error fetching project data:", err);
     });
 }
+
+
 
 fetchProjects();
